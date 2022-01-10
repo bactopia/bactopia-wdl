@@ -6,35 +6,78 @@ task bactopia {
         File?   r2
         String  sample_name
         Boolean ont=false
+        String docker="quay.io/bactopia/bactopia-wdl:2.0.1"
     }
 
-  command {
-    BACTOPIA_READS=""
-    if [ -z ${r2} ]; then
-        if [ "${ont}" == "true" ]; then
-            # Nanopore reads
-            BACTOPIA_READS="--SE ${r1} --ont"
+    command {
+        date | tee DATE
+        bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
+
+        BACTOPIA_READS=""
+        if [ -z ${r2} ]; then
+            if [ "${ont}" == "true" ]; then
+                # Nanopore reads
+                BACTOPIA_READS="--SE ${r1} --ont"
+            else
+                # Single end reads
+                BACTOPIA_READS="--SE ${r1}"
+            fi
         else
-            # Single end reads
-            BACTOPIA_READS="--SE ${r1}"
+            # Paired end reads
+            BACTOPIA_READS="--R1 ${r1} --R2 ${r2}"
         fi
-    else
-        # Paired end reads
-        BACTOPIA_READS="--R1 ${r1} --R2 ${r2}"
-    fi
 
-    bactopia $BACTOPIA_READS --sample ${sample_name} --skip_qc_plots
-  }
+        # Run Bactopia
+        mkdir bactopia
+        cd bactopia
+        if bactopia $BACTOPIA_READS --sample ${sample_name} --skip_qc_plots; then
+            # Everything finished, pack up the results and clean up
+            rm -rf .nextflow/ work/
+            cd ..
+            tar -cf - bactopia/ | gzip -n --best  > ${sample_name}.tar.gz
 
-  output {
-    File assembly = "${sample_name}/assembly/${sample_name}.fna.gz"
-    File versions = "software_versions.yml"
-  }
+            # Gather metrics
+            bactopia-stats.py bactopia/${sample_name}/ ${sample_name}
+        else
+            # Run failed
+            exit 1
+        fi
+    }
 
-  runtime {
-    docker: "quay.io/bactopia/bactopia-wdl:2.0.1"
-    memory: "16 GB"
-    disks:  "local-disk 50 LOCAL"
-    maxRetries: 3
-  }
+    output {
+        String bactopia_version = read_string("BACTOPIA_VERSION")
+        String bactopia_docker = docker
+        String analysis_date = read_string("DATE")
+        File versions = "bactopia/software_versions.yml"
+        Boolean is_paired = read_boolean("IS_PAIRED")
+        Int genome_size = read_int("GENOME_SIZE")
+        Int qc_total_bp = read_int("QC_TOTAL_BP")
+        Float qc_coverage = read_float("QC_COVERAGE")
+        Int qc_read_total = read_int("QC_READ_TOTAL")
+        Float qc_read_mean = read_float("QC_READ_MEAN")
+        Float qc_qual_mean = read_float("QC_QUAL_MEAN")
+        Int raw_total_bp = read_int("RAW_TOTAL_BP")
+        Float raw_coverage = read_float("RAW_COVERAGE")
+        Int raw_read_total = read_int("RAW_READ_TOTAL")
+        Float raw_read_mean = read_float("RAW_READ_MEAN")
+        Float raw_qual_mean = read_float("RAW_QUAL_MEAN")
+        Array[File] reads = glob("bactopia/~{sample_name}/quality-control/*.fastq.gz")
+        File assembly = "bactopia/~{sample_name}/assembly/~{sample_name}.fna.gz"
+        Int total_contig = read_int("TOTAL_CONTIG")
+        Int total_contig_length = read_int("TOTAL_CONTIG_LENGTH")
+        Int max_contig_length = read_int("MAX_CONTIG_LENGTH")
+        Int mean_contig_length = read_int("MEAN_CONTIG_LENGTH")
+        Int n50_contig_length = read_int("N50_CONTIG_LENGTH")
+        Float gc_percent = read_float("GC_PERCENT")
+        File genes = "bactopia/~{sample_name}/annotation/~{sample_name}.ffn.gz"
+        File proteins = "bactopia/~{sample_name}/annotation/~{sample_name}.faa.gz"
+        File full_results  = "~{sample_name}.tar.gz"
+    }
+
+    runtime {
+        docker: "~{docker}"
+        memory: "16 GB"
+        disks:  "local-disk 50 LOCAL"
+        maxRetries: 3
+    }
 }

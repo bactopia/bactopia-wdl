@@ -10,3 +10,4 @@ LABEL maintainer="Robert A. Petit III"
 LABEL maintainer.email="robbie.petit@gmail.com"
 
 RUN bactopia build --default && mamba clean -ay
+COPY bin/bactopia-stats.py /opt/conda/envs/bactopia/bin
