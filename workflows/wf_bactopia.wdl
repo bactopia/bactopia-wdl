@@ -3,6 +3,13 @@ version 1.0
 import "../tasks/task_bactopia.wdl" as bactopia_nf
 
 workflow bactopia {
+    meta {
+        description: "A flexible pipeline for complete analysis of bacterial genomes"
+        doi: "10.1128/mSystems.00190-20"
+        author: "Robert A. Petit III"
+        email:  "robert.petit@theiagen.com"
+    }
+
     input {
         File    r1
         File    r2
