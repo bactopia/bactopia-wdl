@@ -12,6 +12,7 @@ task bactopia {
     command {
         date | tee DATE
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
+        env
 
         BACTOPIA_READS=""
         if [ -z ${r2} ]; then
