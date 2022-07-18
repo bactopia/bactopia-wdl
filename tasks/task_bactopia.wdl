@@ -5,6 +5,7 @@ task bactopia {
         File    r1
         File?   r2
         String  sample_name
+        File?   nf_config
         Boolean ont=false
         String docker="quay.io/bactopia/bactopia-wdl:2.0.1"
     }
@@ -12,7 +13,6 @@ task bactopia {
     command {
         date | tee DATE
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
-        env
 
         BACTOPIA_READS=""
         if [ -z ${r2} ]; then
@@ -31,7 +31,7 @@ task bactopia {
         # Run Bactopia
         mkdir bactopia
         cd bactopia
-        if bactopia $BACTOPIA_READS --sample ${sample_name} --skip_qc_plots; then
+        if bactopia $BACTOPIA_READS --sample ${sample_name} --skip_qc_plots ${"-c" + nf_config}; then
             # Everything finished, pack up the results and clean up
             rm -rf .nextflow/ work/
             cd ..
