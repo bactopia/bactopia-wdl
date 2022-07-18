@@ -8,6 +8,7 @@ task bactopia {
         File?   nf_config
         Boolean ont=false
         String docker="quay.io/bactopia/bactopia-wdl:2.0.1"
+        String? bactopia_opts
     }
 
     command {
@@ -31,7 +32,7 @@ task bactopia {
         # Run Bactopia
         mkdir bactopia
         cd bactopia
-        if bactopia $BACTOPIA_READS --sample ${sample_name} --skip_qc_plots ${"-c" + nf_config}; then
+        if bactopia $BACTOPIA_READS --sample ${sample_name} --skip_qc_plots ${"-c" + nf_config} ~{bactopia_opts}; then
             # Everything finished, pack up the results and clean up
             rm -rf .nextflow/ work/
             cd ..
