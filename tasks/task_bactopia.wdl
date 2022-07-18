@@ -32,7 +32,7 @@ task bactopia {
         # Run Bactopia
         mkdir bactopia
         cd bactopia
-        if bactopia $BACTOPIA_READS --sample ${sample_name} --skip_qc_plots ${"-c " + nf_config} ~{bactopia_opts}; then
+        if bactopia $BACTOPIA_READS --sample ${sample_name} --max_cpus 8 --skip_qc_plots ${"-c " + nf_config} ~{bactopia_opts}; then
             # Everything finished, pack up the results and clean up
             rm -rf .nextflow/ work/
             cd ..
