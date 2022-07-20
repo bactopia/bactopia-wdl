@@ -45,7 +45,7 @@ task bactopia {
         fi
 
         # Create Config
-        bactopia-config.py > ../bactopia-terra.config
+        bactopia-config.py > bactopia-terra.config
 
         # Run Bactopia
         mkdir bactopia
