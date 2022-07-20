@@ -11,10 +11,10 @@ task bactopia {
         String? bactopia_opts
     }
 
-    command {
+    command <<<
         set -x
         # Setup env variables
-        gcloud compute instances list --filter="name=('`hostname`')" --format 'csv[no-heading](zone)' 2> /dev/null > zone.txt
+        gcloud compute instances list --filter="name=('$(hostname)')" --format 'csv[no-heading](zone)' 2> /dev/null > zone.txt
         export GOOGLE_REGION=$(gcloud compute zones list | grep -f zone.txt | awk '{print $2}')
         export GOOGLE_PROJECT=$(gcloud config get-value project)
         export PET_SA_EMAIL=$(gcloud config get-value account)
@@ -31,35 +31,35 @@ task bactopia {
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
 
         BACTOPIA_READS=""
-        if [ -z ${r2} ]; then
+        if [ -z ~{r2} ]; then
             if [ "${ont}" == "true" ]; then
                 # Nanopore reads
-                BACTOPIA_READS="--SE ${r1} --ont"
+                BACTOPIA_READS="--SE ~{r1} --ont"
             else
                 # Single end reads
-                BACTOPIA_READS="--SE ${r1}"
+                BACTOPIA_READS="--SE ~{r1}"
             fi
         else
             # Paired end reads
-            BACTOPIA_READS="--R1 ${r1} --R2 ${r2}"
+            BACTOPIA_READS="--R1 ~{r1} --R2 ~{r2}"
         fi
 
         # Run Bactopia
         mkdir bactopia
         cd bactopia
-        if bactopia $BACTOPIA_READS --sample ${sample_name} --max_cpus 8 --skip_qc_plots ${"-c " + nf_config} ~{bactopia_opts}; then
+        if bactopia $BACTOPIA_READS --sample ~{sample_name} --max_cpus 8 --skip_qc_plots ~{"-c " + nf_config} ~{bactopia_opts}; then
             # Everything finished, pack up the results and clean up
             rm -rf .nextflow/ work/
             cd ..
-            tar -cf - bactopia/ | gzip -n --best  > ${sample_name}.tar.gz
+            tar -cf - bactopia/ | gzip -n --best  > ~{sample_name}.tar.gz
 
             # Gather metrics
-            bactopia-stats.py bactopia/${sample_name}/ ${sample_name}
+            bactopia-stats.py bactopia/~{sample_name}/ ~{sample_name}
         else
             # Run failed
             exit 1
         fi
-    }
+    >>>
 
     output {
         String bactopia_version = read_string("BACTOPIA_VERSION")
