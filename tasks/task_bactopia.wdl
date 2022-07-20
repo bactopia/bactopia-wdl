@@ -14,8 +14,7 @@ task bactopia {
     command <<<
         set -x
         # Setup env variables
-        basename $(curl --silent -H "Metadata-Flavor: Google" metadata/computeMetadata/v1/instance/zone) 2> /dev/null > zone.txt
-        export GOOGLE_REGION=$(gcloud compute zones list | grep -f zone.txt | awk '{print $2}')
+        export GOOGLE_REGION=$(gcloud compute instances list --filter="name=('$(hostname)')" --format 'csv[no-heading](zone)' 2> /dev/null | cut -d "-" -f1-2)
         export GOOGLE_PROJECT=$(gcloud config get-value project)
         export PET_SA_EMAIL=$(gcloud config get-value account)
         export WORKSPACE_BUCKET=$(gsutil ls | grep "gs://fc-" | head  -n1 | sed 's=gs://==')
