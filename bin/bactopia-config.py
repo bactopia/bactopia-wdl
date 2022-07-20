@@ -9,7 +9,6 @@ print(textwrap.dedent(f"""
         memory = {{16.GB * task.attempt}}
         time = {{60.m * task.attempt}}
         errorStrategy = 'retry'
-        maxRetries = params.max_retry
 
         // single cpus
         withLabel: max_cpus_1 {{
