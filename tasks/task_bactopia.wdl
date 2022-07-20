@@ -12,6 +12,20 @@ task bactopia {
     }
 
     command {
+        set -x
+        # Setup env variables
+        export GOOGLE_PROJECT=$(gcloud config get-value project)
+        export PET_SA_EMAIL=$(gcloud config get-value account)
+        export WORKSPACE_BUCKET=$(gcloud alpha storage ls | head -n1)
+        env
+        
+        # debug
+        gcloud alpha storage ls
+        gsutil ls
+        
+        ls -lha $HOME
+        find $HOME/.config
+        
         date | tee DATE
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
 
