@@ -14,18 +14,18 @@ task bactopia {
     command {
         set -x
         # Setup env variables
+        gcloud compute instances list --filter="name=('`hostname`')" --format 'csv[no-heading](zone)' 2> /dev/null > zone.txt
+        export GOOGLE_REGION=$(gcloud compute zones list | grep -f zone.txt | awk '{print $2}')
         export GOOGLE_PROJECT=$(gcloud config get-value project)
         export PET_SA_EMAIL=$(gcloud config get-value account)
-        export WORKSPACE_BUCKET=$(gcloud alpha storage ls | head -n1)
+        export WORKSPACE_BUCKET=$(gsutil ls | grep "gs://fc-" | head  -n1)
+        export EXPECTED_BUCKET=$(basename $(pwd))
         env
         
-        # debug
-        gcloud alpha storage ls
-        gsutil ls
-        
-        ls -lha $HOME
-        find $HOME/
-        find /cromwell_root
+        if [ "${WORKSPACE_BUCKET}" != "${EXPECTED_BUCKET}" ]; then
+            echo "Bucket mismatch: ${WORKSPACE_BUCKET} != ${EXPECTED_BUCKET}"
+            exit 1
+        fi
         
         date | tee DATE
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
