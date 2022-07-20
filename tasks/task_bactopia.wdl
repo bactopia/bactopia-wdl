@@ -24,7 +24,8 @@ task bactopia {
         gsutil ls
         
         ls -lha $HOME
-        find $HOME/.config
+        find $HOME/
+        find /cromwell_root
         
         date | tee DATE
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
