@@ -7,7 +7,7 @@ task bactopia {
         String  sample_name
         File?   nf_config
         Boolean ont=false
-        String docker="quay.io/bactopia/bactopia-wdl:2.0.1"
+        String docker="quay.io/bactopia/bactopia-wdl:2.1.1"
         String? bactopia_opts
     }
 
