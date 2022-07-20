@@ -18,7 +18,7 @@ task bactopia {
         export GOOGLE_PROJECT=$(gcloud config get-value project)
         export PET_SA_EMAIL=$(gcloud config get-value account)
         export WORKSPACE_BUCKET=$(gsutil ls | grep "gs://fc-" | head  -n1 | sed 's=gs://==')
-        export EXPECTED_BUCKET=$(basename $(direname ~{r1}))
+        export EXPECTED_BUCKET=$(basename $(dirname ~{r1}))
         env
         
         if [ "${WORKSPACE_BUCKET}" != "${EXPECTED_BUCKET}" ]; then
