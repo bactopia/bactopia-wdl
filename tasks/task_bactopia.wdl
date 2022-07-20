@@ -18,6 +18,7 @@ task bactopia {
         export GOOGLE_PROJECT=$(gcloud config get-value project)
         export PET_SA_EMAIL=$(gcloud config get-value account)
         export WORKSPACE_BUCKET=$(gsutil ls | grep "gs://fc-" | head  -n1 | sed 's=gs://==; s=/$==')
+        export NXF_WORK="gs://${WORKSPACE_BUCKET}/nextflow-work/${HOSTNAME}"
         export EXPECTED_BUCKET=$(basename $(dirname ~{r1}))
         env
         
@@ -25,7 +26,7 @@ task bactopia {
             echo "Bucket mismatch: ${WORKSPACE_BUCKET} != ${EXPECTED_BUCKET}"
             exit 1
         fi
-        
+
         date | tee DATE
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
 
@@ -43,10 +44,13 @@ task bactopia {
             BACTOPIA_READS="--R1 ~{r1} --R2 ~{r2}"
         fi
 
+        # Create Config
+        bactopia-config.py > ../bactopia-terra.config
+
         # Run Bactopia
         mkdir bactopia
         cd bactopia
-        if bactopia $BACTOPIA_READS --sample ~{sample_name} --max_cpus 8 --skip_qc_plots ~{"-c " + nf_config} ~{bactopia_opts}; then
+        if bactopia $BACTOPIA_READS --sample ~{sample_name} -profile docker,terra -c ../bactopia-terra.config ~{"-c " + nf_config} ~{bactopia_opts}; then
             # Everything finished, pack up the results and clean up
             rm -rf .nextflow/ work/
             cd ..
