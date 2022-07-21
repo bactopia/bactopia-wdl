@@ -80,19 +80,17 @@ print(textwrap.dedent(f"""
             }}
 
             google {{
-                google.region = 'us-central1'
-                google.project = '{os.getenv('GOOGLE_PROJECT')}'
-                google.lifeSciences.debug = true
-                google.lifeSciences.serviceAccountEmail = "{os.getenv('PET_SA_EMAIL')}"
-                google.lifeSciences.usePrivateAddress = false
-                google.lifeSciences.copyImage = "gcr.io/google.com/cloudsdktool/cloud-sdk:alpine"
-                google.lifeSciences.bootDiskSize = '50.GB'
-                google.lifeSciences.preemptible = true
-                google.lifeSciences.network = "/projects/{os.getenv('GOOGLE_PROJECT')}/global/networks/network"
-                google.lifeSciences.subnetwork = "/projects/{os.getenv('GOOGLE_PROJECT')}/regions/us-central1/subnetworks/subnetwork"
+                region = 'us-central1'
+                project = '{os.getenv('GOOGLE_PROJECT')}'
+                lifeSciences.debug = true
+                lifeSciences.serviceAccountEmail = "{os.getenv('PET_SA_EMAIL')}"
+                lifeSciences.usePrivateAddress = false
+                lifeSciences.copyImage = "gcr.io/google.com/cloudsdktool/cloud-sdk:alpine"
+                lifeSciences.bootDiskSize = '50.GB'
+                lifeSciences.preemptible = true
+                lifeSciences.network = "/projects/{os.getenv('GOOGLE_PROJECT')}/global/networks/network"
+                lifeSciences.subnetwork = "/projects/{os.getenv('GOOGLE_PROJECT')}/regions/us-central1/subnetworks/subnetwork"
             }}
-
-            workDir = '{os.getenv('NXF_WORK')}'
         }}
     }}
 """
