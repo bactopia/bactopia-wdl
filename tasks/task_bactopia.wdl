@@ -46,6 +46,7 @@ task bactopia {
 
         # Create Config
         bactopia-config.py > bactopia-terra.config
+        cat bactopia-terra.config
 
         # Run Bactopia
         mkdir bactopia
@@ -60,6 +61,7 @@ task bactopia {
             bactopia-stats.py bactopia/~{sample_name}/ ~{sample_name}
         else
             # Run failed
+            cat .nextflow.log
             exit 1
         fi
     >>>
