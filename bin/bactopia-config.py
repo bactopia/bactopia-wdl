@@ -39,6 +39,7 @@ print(textwrap.dedent(f"""
 
                 // Process specific
                 withLabel: 'assemble_genome' {{
+                    cpus = {{check_max('request', Math.max(8, RESOURCES.MAX_CPUS), 'cpus')}}
                     memory = {{check_max((32.GB * task.attempt), RESOURCES.MAX_MEMORY, 'memory')}}
                     time = {{check_max( 2.h * task.attempt, (params.max_time).m, 'time' )}}
                 }}
@@ -55,12 +56,12 @@ print(textwrap.dedent(f"""
                     time = {{check_max( 2.h * task.attempt, 2.h * task.attempt, 'time' )}}
                 }}
                 withLabel: process_medium {{
-                    cpus = {{check_max('request', RESOURCES.MAX_CPUS, 'cpus')}}
+                    cpus = {{check_max('request', Math.max(8, RESOURCES.MAX_CPUS), 'cpus')}}
                     memory = {{check_max(32.GB * task.attempt, RESOURCES.MAX_MEMORY, 'memory' )}}
                     time = {{check_max( 12.h * task.attempt, 12.h * task.attempt, 'time' )}}
                 }}
                 withLabel: process_high {{
-                    cpus = {{check_max('request', RESOURCES.MAX_CPUS, 'cpus')}}
+                    cpus = {{check_max('request', Math.max(16, RESOURCES.MAX_CPUS), 'cpus')}}
                     memory = {{check_max(64.GB * task.attempt, RESOURCES.MAX_MEMORY, 'memory' )}}
                     time = {{check_max( 24.h * task.attempt, 24.h * task.attempt, 'time' )}}
                 }}
@@ -68,6 +69,7 @@ print(textwrap.dedent(f"""
                     time = {{check_max( 96.h * task.attempt, 96.h * task.attempt, 'time' )}}
                 }}
                 withLabel: process_high_memory {{
+                    cpus = {{check_max('request', Math.max(32, RESOURCES.MAX_CPUS), 'cpus')}}
                     memory = {{check_max(128.GB * task.attempt, RESOURCES.MAX_MEMORY, 'memory' )}}
                 }}
                 withLabel: error_ignore {{
@@ -80,7 +82,7 @@ print(textwrap.dedent(f"""
             }}
 
             google {{
-                region = 'us-central1'
+                region = '{os.getenv('GOOGLE_REGION')}'
                 project = '{os.getenv('GOOGLE_PROJECT')}'
                 lifeSciences.debug = true
                 lifeSciences.serviceAccountEmail = "{os.getenv('PET_SA_EMAIL')}"

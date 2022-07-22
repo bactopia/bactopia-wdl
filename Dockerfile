@@ -9,9 +9,8 @@ LABEL license="https://github.com/bactopia/bactopia/blob/master/LICENSE"
 LABEL maintainer="Robert A. Petit III"
 LABEL maintainer.email="robbie.petit@gmail.com"
 
-COPY bin/bactopia-stats.py /opt/conda/envs/bactopia/bin
-COPY bin/bactopia-config.py /opt/conda/envs/bactopia/bin
 ENV CLOUDSDK_INSTALL_DIR /usr/local/gcloud/
 RUN curl -sSL https://sdk.cloud.google.com | bash
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
-
+COPY bin/bactopia-stats.py /opt/conda/envs/bactopia/bin
+COPY bin/bactopia-config.py /opt/conda/envs/bactopia/bin

@@ -1,5 +1,16 @@
 version: 1.2
 workflows:
- - name: Bactopia
-   subclass: WDL
-   primaryDescriptorPath: /workflows/wf_bactopia.wdl
+  - name: Bactopia
+    subclass: WDL
+    primaryDescriptorPath: /workflows/bactopia.wdl
+    authors:
+      - name: Robert A. Petit III
+        orcid: "0000-0002-1350-9426"
+        email: robbie.petit@gmail.com
+  - name: BactopiaSearch
+    subclass: WDL
+    primaryDescriptorPath: /workflows/bactopia_search.wdl
+    authors:
+      - name: Robert A. Petit III
+        orcid: "0000-0002-1350-9426"
+        email: robbie.petit@gmail.com
