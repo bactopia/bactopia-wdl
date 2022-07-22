@@ -14,9 +14,6 @@ task bactopia_search {
 
     command <<<
         set -x
-        # Setup env variables
-        date | tee DATE
-        bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
 
         if [ -z ~{accession_list} ]; then
             bactopia search "~{search_term}" --prefix ~{prefix} ~{"--limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
@@ -25,9 +22,10 @@ task bactopia_search {
             bactopia search ~{accession_list} --prefix ~{prefix} ~{"--limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
         fi
 
-        # Query and gather a few stats
-        
-        wc -l ~{prefix}-accessions.txt | tee TOTAL_ACCESSIONS
+        # Gather a few stats
+        date | tee DATE
+        bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
+        wc -l ~{prefix}-accessions.txt | awk '{print $1}' | tee TOTAL_ACCESSIONS
         grep "QUERY" ~{prefix}-summary.txt | sed 's/QUERY: //' | tee QUERY
     >>>
 
