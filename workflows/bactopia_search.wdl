@@ -37,7 +37,7 @@ workflow bactopia_search {
         String query_date = bactopia_search.query_date
         String query = bactopia_search.query
         Int total_accessions = bactopia_search.total_accessions
-        File accessions = bactopia_search.accessions
+        File accessions = bactopia_search.found_accessions
         File filtered = bactopia_search.filtered
         File metadata = bactopia_search.metadata
         File summary = bactopia_search.summary
