@@ -32,14 +32,14 @@ workflow bactopia_search {
     }
 
     output {
-        String bactopia_version = search.bactopia_version
-        String bactopia_docker = search.bactopia_docker
-        String query_date = search.query_date
-        String query = search.query_term
-        Int total_accessions = search.total_accessions
-        File accessions = search.accessions
-        File filtered = search.filtered
-        File metadata = search.metadata
-        File summary = search.summary
+        String bactopia_version = bactopia_search.bactopia_version
+        String bactopia_docker = bactopia_search.bactopia_docker
+        String query_date = bactopia_search.query_date
+        String query = bactopia_search.query_term
+        Int total_accessions = bactopia_search.total_accessions
+        File accessions = bactopia_search.accessions
+        File filtered = bactopia_search.filtered
+        File metadata = bactopia_search.metadata
+        File summary = bactopia_search.summary
     }
 }
