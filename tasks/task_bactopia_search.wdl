@@ -20,7 +20,7 @@ task bactopia_search {
 
         QUERY=""
         if [ -z ~{accession_list} ]; then
-            QUERY="~{search_term}"
+            QUERY="'~{search_term}'"
         else
             # query is a file of accessions
             QUERY="~{accession_list}"
