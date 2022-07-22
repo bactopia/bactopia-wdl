@@ -9,7 +9,7 @@ task bactopia_search {
         Int? min_read_length
         Int? min_base_count
         String? search_opts
-        docker = "quay.io/bactopia/bactopia-wdl:2.1.1"
+        String docker = "quay.io/bactopia/bactopia-wdl:2.1.1"
     }
 
     command <<<
