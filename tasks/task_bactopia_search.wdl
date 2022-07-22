@@ -37,7 +37,6 @@ task bactopia_search {
         String query_date = read_string("DATE")
         String query = read_string("QUERY")
         Int total_accessions = read_int("TOTAL_ACCESSIONS")
-        Int qc_total_bp = read_int("QC_TOTAL_BP")
         File accessions = "~{prefix}-accessions.txt"
         File filtered = "~{prefix}-filtered.txt"
         File metadata = "~{prefix}-results.txt"
