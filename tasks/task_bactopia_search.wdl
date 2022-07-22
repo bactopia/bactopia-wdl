@@ -36,7 +36,7 @@ task bactopia_search {
         String bactopia_version = read_string("BACTOPIA_VERSION")
         String bactopia_docker = docker
         String query_date = read_string("DATE")
-        String query = read_string("QUERY")
+        String search_query = read_string("QUERY")
         Int total_accessions = read_int("TOTAL_ACCESSIONS")
         Int qc_total_bp = read_int("QC_TOTAL_BP")
         File found_accessions = "~{prefix}-accessions.txt"

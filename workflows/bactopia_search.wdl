@@ -35,7 +35,7 @@ workflow bactopia_search {
         String bactopia_version = bactopia_search.bactopia_version
         String bactopia_docker = bactopia_search.bactopia_docker
         String query_date = bactopia_search.query_date
-        String query = bactopia_search.query
+        String query = bactopia_search.search_query
         Int total_accessions = bactopia_search.total_accessions
         File accessions = bactopia_search.found_accessions
         File filtered = bactopia_search.filtered
