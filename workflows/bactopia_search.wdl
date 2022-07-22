@@ -11,8 +11,8 @@ workflow bactopia_search {
     }
 
     input {
-        File? accessions
-        String? query
+        File? accession_list
+        String? search_term
         String? prefix
         Int? limit
         Int? min_read_length
@@ -22,8 +22,8 @@ workflow bactopia_search {
 
     call search.bactopia_search {
         input:
-            query = query,
-            accessions = accessions,
+            search_term = search_term,
+            accession_list = accession_list,
             prefix = prefix,
             limit = limit,
             min_read_length = min_read_length,
@@ -35,9 +35,9 @@ workflow bactopia_search {
         String bactopia_version = bactopia_search.bactopia_version
         String bactopia_docker = bactopia_search.bactopia_docker
         String query_date = bactopia_search.query_date
-        String query_term = bactopia_search.search_query
+        String query = bactopia_search.query
         Int total_accessions = bactopia_search.total_accessions
-        File accessions = bactopia_search.found_accessions
+        File accessions = bactopia_search.accessions
         File filtered = bactopia_search.filtered
         File metadata = bactopia_search.metadata
         File summary = bactopia_search.summary

@@ -2,8 +2,8 @@ version 1.0
 
 task bactopia_search {
     input {
-        File?   accessions
-        String? query
+        File? accession_list
+        String? search_term
         String? prefix = "bactopia"
         Int? limit
         Int? min_read_length
@@ -19,27 +19,27 @@ task bactopia_search {
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
 
         QUERY=""
-        if [ -z ~{accessions} ]; then
-            QUERY="~{query}"
+        if [ -z ~{accession_list} ]; then
+            QUERY="~{search_term}"
         else
             # query is a file of accessions
-            QUERY="~{accessions}"
+            QUERY="~{accession_list}"
         fi
 
         # Query and gather a few stats
         bactopia search ${QUERY} --prefix ~{prefix} ~{"-limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
-        wc -l bactopia-accessions.txt | tee TOTAL_ACCESSIONS
-        grep "QUERY" bactopia-summary.txt | sed 's/QUERY: //' | tee QUERY
+        wc -l ~{prefix}-accessions.txt | tee TOTAL_ACCESSIONS
+        grep "QUERY" ~{prefix}-summary.txt | sed 's/QUERY: //' | tee QUERY
     >>>
 
     output {
         String bactopia_version = read_string("BACTOPIA_VERSION")
         String bactopia_docker = docker
         String query_date = read_string("DATE")
-        String search_query = read_string("QUERY")
+        String query = read_string("QUERY")
         Int total_accessions = read_int("TOTAL_ACCESSIONS")
         Int qc_total_bp = read_int("QC_TOTAL_BP")
-        File found_accessions = "~{prefix}-accessions.txt"
+        File accessions = "~{prefix}-accessions.txt"
         File filtered = "~{prefix}-filtered.txt"
         File metadata = "~{prefix}-results.txt"
         File summary = "~{prefix}-summary.txt"
