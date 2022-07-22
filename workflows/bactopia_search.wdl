@@ -1,8 +1,8 @@
 version 1.0
 
-import "../tasks/task_bactopia_search.wdl" as bactopia_search
+import "../tasks/task_bactopia_search.wdl" as search
 
-workflow bactopia {
+workflow bactopia_search {
     meta {
         description: "A flexible pipeline for complete analysis of bacterial genomes"
         doi: "10.1128/mSystems.00190-20"
@@ -20,7 +20,7 @@ workflow bactopia {
         String? search_opts
     }
 
-    call bactopia_search.bactopia_search {
+    call search.bactopia_search {
         input:
             query = query,
             accessions = accessions,
@@ -32,14 +32,14 @@ workflow bactopia {
     }
 
     output {
-        String bactopia_version = bactopia_search.bactopia_version
-        String bactopia_docker = bactopia_search.bactopia_docker
-        String query_date = bactopia_search.query_date
-        String query = bactopia_search.query_term
-        Int total_accessions = bactopia_search.total_accessions
-        File accessions = bactopia_search.accessions
-        File filtered = bactopia_search.filtered
-        File metadata = bactopia_search.metadata
-        File summary = bactopia_search.summary
+        String bactopia_version = search.bactopia_version
+        String bactopia_docker = search.bactopia_docker
+        String query_date = search.query_date
+        String query = search.query_term
+        Int total_accessions = search.total_accessions
+        File accessions = search.accessions
+        File filtered = search.filtered
+        File metadata = search.metadata
+        File summary = search.summary
     }
 }

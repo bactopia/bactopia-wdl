@@ -9,6 +9,7 @@ task bactopia_search {
         Int? min_read_length
         Int? min_base_count
         String? search_opts
+        docker = "quay.io/bactopia/bactopia-wdl:2.1.1"
     }
 
     command <<<
@@ -48,6 +49,6 @@ task bactopia_search {
         cpu: 1
         disks: "local-disk 10 HDD"
         memory: "1 GB"
-        docker: "quay.io/bactopia/bactopia-wdl:2.1.1"
+        docker: "~{docker}"
     }
 }
