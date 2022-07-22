@@ -19,10 +19,10 @@ task bactopia_search {
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
 
         if [ -z ~{accession_list} ]; then
-            bactopia search "~{search_term}" --prefix ~{prefix} ~{"-limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
+            bactopia search "~{search_term}" --prefix ~{prefix} ~{"--limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
         else
             # query is a file of accessions
-            bactopia search ~{accession_list} --prefix ~{prefix} ~{"-limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
+            bactopia search ~{accession_list} --prefix ~{prefix} ~{"--limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
         fi
 
         # Query and gather a few stats
