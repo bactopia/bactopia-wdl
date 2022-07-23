@@ -98,7 +98,7 @@ task bactopia {
         EXIT_CODE=0
         mkdir bactopia
         cd bactopia
-        if bactopia ${BACTOPIA_INPUT} ${BACTOPIA_DATASETS} ${BACTOPIA_GSIZE} -profile docker,terra --nfconfig ../bactopia-terra.config -w ${NXF_WORK} ~{"-c " + nf_config} ~{bactopia_opts}; then
+        if bactopia "${BACTOPIA_INPUT}" "${BACTOPIA_DATASETS}" "${BACTOPIA_GSIZE}" -profile docker,terra --nfconfig ../bactopia-terra.config -w "${NXF_WORK}" ~{"-c " + nf_config} ~{bactopia_opts}; then
             # Everything finished, pack up the results and clean up
             rm -rf .nextflow/ work/
             cd ..
