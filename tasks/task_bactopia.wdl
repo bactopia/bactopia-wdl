@@ -74,10 +74,12 @@ task bactopia {
         HAS_SPECIES=0
         if [ -f ~{datasets} ]; then
             tar -xzf ~{datasets}
-            BACTOPIA_DATASETS="--datasets ../datasets/"
             if [ -n "~{species}" ]; then
-                BACTOPIA_SPECIES="--species \"~{species}\""
+                SPECIES=$(echo ~{species} | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+                BACTOPIA_DATASETS="--datasets ../datasets/ --species ${SPECIES}"
                 HAS_SPECIES=1
+            else
+                BACTOPIA_DATASETS="--datasets ../datasets/"
             fi
         fi
 
@@ -98,7 +100,7 @@ task bactopia {
         EXIT_CODE=0
         mkdir bactopia
         cd bactopia
-        if bactopia ${BACTOPIA_INPUT} ${BACTOPIA_DATASETS} ${BACTOPIA_SPECIES} ${BACTOPIA_GSIZE} -profile docker,terra --nfconfig ../bactopia-terra.config -w ${NXF_WORK} ~{"-c " + nf_config} ~{bactopia_opts}; then
+        if bactopia ${BACTOPIA_INPUT} ${BACTOPIA_DATASETS} ${BACTOPIA_GSIZE} -profile docker,terra --nfconfig ../bactopia-terra.config -w ${NXF_WORK} ~{"-c " + nf_config} ~{bactopia_opts}; then
             # Everything finished, pack up the results and clean up
             rm -rf .nextflow/ work/
             cd ..
