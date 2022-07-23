@@ -76,7 +76,7 @@ task bactopia {
             tar -xzf ~{datasets}
             BACTOPIA_DATASETS="--datasets ../datasets/"
             if [ -n "~{species}" ]; then
-                BACTOPIA_SPECIES="--species '~{species}'"
+                BACTOPIA_SPECIES="--species \"~{species}\""
                 HAS_SPECIES=1
             fi
         fi
