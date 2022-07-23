@@ -17,7 +17,7 @@ workflow bactopia {
         Boolean? is_accession
     }
 
-    if (defined(r1) || defined(r2) || defined(is_accession)) {
+    if (defined(r1) || defined(is_accession)) {
       call bactopia_task.bactopia as bactopia_nf {
           input:
               sample_name = sample_name,
@@ -26,7 +26,6 @@ workflow bactopia {
               is_accession = is_accession
       }
     }
-
 
     output {
         String bactopia_version = bactopia_nf.bactopia_version
