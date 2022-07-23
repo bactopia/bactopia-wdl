@@ -33,6 +33,7 @@ task bactopia {
     }
 
     command <<<
+        set -x
         date | tee DATE
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
 
@@ -42,7 +43,10 @@ task bactopia {
         export PET_SA_EMAIL=$(gcloud config get-value account)
         export WORKSPACE_BUCKET=$(gsutil ls | grep "gs://fc-" | head  -n1 | sed 's=gs://==; s=/$==')
         export NXF_WORK="gs://${WORKSPACE_BUCKET}/nextflow-work/${HOSTNAME}"
-        export EXPECTED_BUCKET=$(basename $(dirname ~{r1}))
+        export EXPECTED_BUCKET=$(basename $(dirname $(pwd))
+
+        env
+        pwd
         
         if [ "${WORKSPACE_BUCKET}" != "${EXPECTED_BUCKET}" ]; then
             # This should not happen, but just in case...
@@ -52,7 +56,7 @@ task bactopia {
 
         # Setup inputs
         BACTOPIA_INPUT=""
-        if [ ~{true='true' false='false' is_accession} == "true" ]; then
+        if [ "~{true='true' false='false' is_accession}" == "true" ]; then
             # Treat as Experiment accession
             BACTOPIA_INPUT="--accession ~{sample_name}"
         elif [ -f "${r2}" ]; then
@@ -74,7 +78,7 @@ task bactopia {
         if [ -f ~{datasets} ]; then
             tar -xzf ~{datasets}
             if [ -n "~{species}" ]; then
-                BACTOPIA_DATASETS="--datasets datasets/ --species ~{species}"
+                BACTOPIA_DATASETS="--datasets datasets/ --species \"~{species}\""
                 HAS_SPECIES=1
             else
                 BACTOPIA_DATASETS="--datasets datasets/"
