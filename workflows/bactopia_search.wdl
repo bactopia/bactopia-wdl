@@ -1,6 +1,6 @@
 version 1.0
 
-import "../tasks/task_bactopia_search.wdl" as search
+import "../tasks/task_bactopia_search.wdl" as task_bactopia_search
 
 workflow bactopia_search {
     meta {
@@ -13,33 +13,23 @@ workflow bactopia_search {
     input {
         File? accession_list
         String? search_term
-        String? prefix
-        Int? limit
-        Int? min_read_length
-        Int? min_base_count
-        String? search_opts
     }
 
-    call search.bactopia_search {
+    call task_bactopia_search.bactopia_search as search {
         input:
             search_term = search_term,
-            accession_list = accession_list,
-            prefix = prefix,
-            limit = limit,
-            min_read_length = min_read_length,
-            min_base_count = min_base_count,
-            search_opts = search_opts
+            accession_list = accession_list
     }
 
     output {
-        String bactopia_version = bactopia_search.bactopia_version
-        String bactopia_docker = bactopia_search.bactopia_docker
-        String query_date = bactopia_search.query_date
-        String query = bactopia_search.query
-        Int total_accessions = bactopia_search.total_accessions
-        File accessions = bactopia_search.accessions
-        File filtered = bactopia_search.filtered
-        File metadata = bactopia_search.metadata
-        File summary = bactopia_search.summary
+        String bactopia_version = search.bactopia_version
+        String bactopia_docker = search.bactopia_docker
+        String query_date = search.query_date
+        String query = search.query
+        Int total_accessions = search.total_accessions
+        File accessions = search.accessions
+        File filtered = search.filtered
+        File metadata = search.metadata
+        File summary = search.summary
     }
 }

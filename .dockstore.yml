@@ -14,3 +14,10 @@ workflows:
       - name: Robert A. Petit III
         orcid: "0000-0002-1350-9426"
         email: robbie.petit@gmail.com
+  - name: BactopiaDatasets
+    subclass: WDL
+    primaryDescriptorPath: /workflows/bactopia_datasets.wdl
+    authors:
+      - name: Robert A. Petit III
+        orcid: "0000-0002-1350-9426"
+        email: robbie.petit@gmail.com

@@ -4,7 +4,7 @@ task bactopia_search {
     input {
         File? accession_list
         String? search_term
-        String? prefix = "bactopia"
+        String prefix = "bactopia"
         Int? limit
         Int? min_read_length
         Int? min_base_count
@@ -13,20 +13,21 @@ task bactopia_search {
     }
 
     command <<<
-        set -x
+      set -x
 
-        if [ -z ~{accession_list} ]; then
-            bactopia search "~{search_term}" --prefix ~{prefix} ~{"--limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
-        else
-            # query is a file of accessions
-            bactopia search ~{accession_list} --prefix ~{prefix} ~{"--limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
-        fi
+      if [ -z ~{accession_list} ]; then
+          bactopia search "~{search_term}" --prefix ~{prefix} ~{"--limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
+          grep "QUERY" ~{prefix}-summary.txt | sed 's/QUERY: //' | tee QUERY
+      else
+          # query is a file of accessions
+          bactopia search ~{accession_list} --prefix ~{prefix} ~{"--limit " + limit} ~{"--min_read_length " + min_read_length} ~{"--min_base_count " + min_base_count} ~{search_opts}
+          echo "a file of accessions was queried" | tee QUERY
+      fi
 
-        # Gather a few stats
-        date | tee DATE
-        bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
-        wc -l ~{prefix}-accessions.txt | awk '{print $1}' | tee TOTAL_ACCESSIONS
-        grep "QUERY" ~{prefix}-summary.txt | sed 's/QUERY: //' | tee QUERY
+      # Gather a few stats
+      date | tee DATE
+      bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
+      wc -l ~{prefix}-accessions.txt | awk '{print $1}' | tee TOTAL_ACCESSIONS
     >>>
 
     output {

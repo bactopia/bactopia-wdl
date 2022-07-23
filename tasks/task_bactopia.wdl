@@ -2,68 +2,121 @@ version 1.0
 
 task bactopia {
     input {
-        File    r1
-        File?   r2
-        String  sample_name
-        File?   nf_config
-        Boolean ont=false
-        String docker="quay.io/bactopia/bactopia-wdl:2.1.1"
+        # Inputs
+        String   sample_name
+        File?    r1
+        File?    r2
+        Boolean? is_accession
+
+        # Optional inputs
+        Boolean? is_ont=false
+        File? nf_config
+        File? datasets
+        String? species
+        String? gsize
         String? bactopia_opts
+
+        String docker="quay.io/bactopia/bactopia-wdl:2.1.1"
+    }
+
+    parameter_meta {
+        sample_name:   { description: "The input sample name or Experiment accession" }
+        r1:            { description: "FASTQ file, can be Illumina R1/single-end, or Nanopore reads" }
+        r2:            { description: "Other FASTQ file for paired-end reads" }
+        is_accession:  { description: "The provided sample name is an Experiment accession" }
+        is_ont:        { description: "The input reads (r1) are Nanopore reads" }
+        nf_config:     { description: "A user provided Nextflow config file" }
+        datasets:      { description: "Pre-built datasets to be used to supplement analyses" }
+        species:       { description: "A species (or genus) name for the pre-built datasets" }
+        gsize:         { description: "A genome size to be used for estimates. If datasets and organism is provided 'median' will be used" }
+        bactopia_opts: { description: "Additional options to provided to fine tune your analysis" }
     }
 
     command <<<
-        set -x
-        # Setup env variables
+        date | tee DATE
+        bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
+
+        # Setup env variables to allow Nextflow to use Google Life Sciences
         export GOOGLE_REGION=$(basename $(curl --silent -H "Metadata-Flavor: Google" metadata/computeMetadata/v1/instance/zone 2> /dev/null) | cut -d "-" -f1-2)
         export GOOGLE_PROJECT=$(gcloud config get-value project)
         export PET_SA_EMAIL=$(gcloud config get-value account)
         export WORKSPACE_BUCKET=$(gsutil ls | grep "gs://fc-" | head  -n1 | sed 's=gs://==; s=/$==')
         export NXF_WORK="gs://${WORKSPACE_BUCKET}/nextflow-work/${HOSTNAME}"
         export EXPECTED_BUCKET=$(basename $(dirname ~{r1}))
-        env
         
         if [ "${WORKSPACE_BUCKET}" != "${EXPECTED_BUCKET}" ]; then
+            # This should not happen, but just in case...
             echo "Bucket mismatch: ${WORKSPACE_BUCKET} != ${EXPECTED_BUCKET}"
-            exit 1
+            exit 42
         fi
 
-        date | tee DATE
-        bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
-
-        BACTOPIA_READS=""
-        if [ -z ~{r2} ]; then
-            if [ "${ont}" == "true" ]; then
+        # Setup inputs
+        BACTOPIA_INPUT=""
+        if [ ~{true='true' false='false' is_accession} == "true" ]; then
+            # Treat as Experiment accession
+            BACTOPIA_INPUT="--accession ~{sample_name}"
+        elif [ -f "${r2}" ]; then
+            # Paired end reads
+            BACTOPIA_INPUT="--R1 ~{r1} --R2 ~{r2} --sample ~{sample_name}"
+        else
+            if [ "~{is_ont}" == "true" ]; then
                 # Nanopore reads
-                BACTOPIA_READS="--SE ~{r1} --ont"
+                BACTOPIA_INPUT="--SE ~{r1} --ont --sample ~{sample_name}"
             else
                 # Single end reads
-                BACTOPIA_READS="--SE ~{r1}"
+                BACTOPIA_INPUT="--SE ~{r1} --sample ~{sample_name}"
+            fi
+        fi
+
+        # Setup datasets
+        BACTOPIA_DATASETS=""
+        HAS_SPECIES=0
+        if [ -f ~{datasets} ]; then
+            tar -xzf ~{datasets}
+            if [ -n "~{species}" ]; then
+                BACTOPIA_DATASETS="--datasets datasets/ --species ~{species}"
+                HAS_SPECIES=1
+            else
+                BACTOPIA_DATASETS="--datasets datasets/"
+            fi
+        fi
+
+        # Setup genome size
+        BACTOPIA_GSIZE=""
+        if [ -z "~{gsize}" ]; then
+            if [ ${HAS_SPECIES} == 1 ]; then
+                BACTOPIA_GSIZE="--genome_size median"
             fi
         else
-            # Paired end reads
-            BACTOPIA_READS="--R1 ~{r1} --R2 ~{r2}"
+            BACTOPIA_GSIZE="--genome_size ~{gsize}"
         fi
 
         # Create Config
         bactopia-config.py > bactopia-terra.config
-        cat bactopia-terra.config
 
         # Run Bactopia
+        EXIT_CODE=0
         mkdir bactopia
         cd bactopia
-        if bactopia $BACTOPIA_READS --sample ~{sample_name} -profile docker,terra --nfconfig ../bactopia-terra.config -w ${NXF_WORK} ~{"-c " + nf_config} ~{bactopia_opts}; then
+        if bactopia ${BACTOPIA_INPUT} ${BACTOPIA_DATASETS} ${BACTOPIA_GSIZE} -profile docker,terra --nfconfig ../bactopia-terra.config -w ${NXF_WORK} ~{"-c " + nf_config} ~{bactopia_opts}; then
             # Everything finished, pack up the results and clean up
             rm -rf .nextflow/ work/
             cd ..
-            tar -cf - bactopia/ | gzip -n --best  > ~{sample_name}.tar.gz
+            tar -cf - bactopia/ | gzip -n --best > ~{sample_name}.tar.gz
 
             # Gather metrics
             bactopia-stats.py bactopia/~{sample_name}/ ~{sample_name}
         else
             # Run failed
             cat .nextflow.log
-            exit 1
+            EXIT_CODE=40
         fi
+
+        # Clean up workdir (prevent pileup in bucket)
+        gsutil rm ${NXF_WORK}
+
+        # Exit
+        exit ${EXIT_CODE}
     >>>
 
     output {
@@ -93,13 +146,15 @@ task bactopia {
         Float gc_percent = read_float("GC_PERCENT")
         File genes = "bactopia/~{sample_name}/annotation/~{sample_name}.ffn.gz"
         File proteins = "bactopia/~{sample_name}/annotation/~{sample_name}.faa.gz"
+        File nextflow_log = "bactopia/.nextflow.log"
         File full_results  = "~{sample_name}.tar.gz"
     }
 
     runtime {
+        cpu: 2
+        disks: "local-disk 30 HDD"
         docker: "~{docker}"
-        memory: "16 GB"
-        disks:  "local-disk 50 LOCAL"
+        memory: "4 GB"
         maxRetries: 3
     }
 }
