@@ -9,7 +9,7 @@ task bactopia {
         Boolean? is_accession
 
         # Optional inputs
-        Boolean? is_ont=false
+        Boolean is_ont=false
         File? nf_config
         File? datasets
         String? species
