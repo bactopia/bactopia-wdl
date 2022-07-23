@@ -36,21 +36,17 @@ task bactopia {
         set -x
         date | tee DATE
         bactopia --version | sed 's/bactopia //' | tee BACTOPIA_VERSION
-        pwd
+
         # Setup env variables to allow Nextflow to use Google Life Sciences
         export GOOGLE_REGION=$(basename $(curl --silent -H "Metadata-Flavor: Google" metadata/computeMetadata/v1/instance/zone 2> /dev/null) | cut -d "-" -f1-2)
         export GOOGLE_PROJECT=$(gcloud config get-value project)
         export PET_SA_EMAIL=$(gcloud config get-value account)
         export WORKSPACE_BUCKET=$(gsutil ls | grep "gs://fc-" | head  -n1 | sed 's=gs://==; s=/$==')
         export NXF_WORK="gs://${WORKSPACE_BUCKET}/nextflow-work/${HOSTNAME}"
-        export EXPECTED_BUCKET=$(basename $(dirname $(pwd)))
-
-        env
-        pwd
         
-        if [ "${WORKSPACE_BUCKET}" != "${EXPECTED_BUCKET}" ]; then
+        if [ ! -d "/cromwell_root/${WORKSPACE_BUCKET}" ]; then
             # This should not happen, but just in case...
-            echo "Bucket mismatch: ${WORKSPACE_BUCKET} != ${EXPECTED_BUCKET}"
+            echo "/cromwell_root/${WORKSPACE_BUCKET} does not exist, exiting"
             exit 42
         fi
 
