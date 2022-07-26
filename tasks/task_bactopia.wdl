@@ -114,7 +114,7 @@ task bactopia {
         fi
 
         # Clean up workdir (prevent pileup in bucket)
-        gsutil rm ${NXF_WORK}
+        gsutil rm -rf ${NXF_WORK}
 
         # Exit
         exit ${EXIT_CODE}
