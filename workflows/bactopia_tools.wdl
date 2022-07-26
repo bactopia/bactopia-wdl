@@ -22,10 +22,10 @@ workflow bactopia {
     }
 
     output {
-        String? bactopia_version = bactopia_nf.bactopia_version
-        String? bactopia_docker = bactopia_nf.bactopia_docker
-        String? analysis_date = bactopia_nf.analysis_date
-        File? versions = bactopia_nf.versions
-        File? full_results = bactopia_nf.full_results
+        String? bactopia_version = bactopia_tools_nf.bactopia_version
+        String? bactopia_docker = bactopia_tools_nf.bactopia_docker
+        String? analysis_date = bactopia_tools_nf.analysis_date
+        File? versions = bactopia_tools_nf.versions
+        File? full_results = bactopia_tools_nf.full_results
     }
 }
