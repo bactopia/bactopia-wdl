@@ -40,8 +40,9 @@ task bactopia_tools {
 
         # Setup inputs
         mkdir bactopia && cd bactopia
-        for index in ${!bactopia_results[@]}; do
-            tar -xvf ${bactopia_results[$index]}
+        bactopia_array=(~{sep=' ' bactopia_results})
+        for index in ${!bactopia_array[@]}; do
+            tar -xvf ${bactopia_array[$index]}
         done
         cd ..
 
