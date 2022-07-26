@@ -70,7 +70,6 @@ task bactopia {
 
         # Setup datasets
         BACTOPIA_DATASETS=""
-        BACTOPIA_SPECIES=""
         HAS_SPECIES=0
         if [ -f ~{datasets} ]; then
             tar -xzf ~{datasets}
