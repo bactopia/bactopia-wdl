@@ -1,6 +1,6 @@
 version 1.0
 
-task bactopia {
+task bactopia_tools {
     input {
         # Inputs
         String bactopia_tool
