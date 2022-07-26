@@ -39,12 +39,10 @@ task bactopia_tools {
         fi
 
         # Setup inputs
-        mkdir bactopia && cd bactopia
         bactopia_array=(~{sep=' ' bactopia_results})
         for index in ${!bactopia_array[@]}; do
             tar -xvf ${bactopia_array[$index]}
         done
-        cd ..
 
         # Create Config
         bactopia-config.py > bactopia-terra.config
